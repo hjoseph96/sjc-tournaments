@@ -14,10 +14,10 @@ defmodule Sjc.Models do
   @doc """
   Gets a tournament by id.
 
-  Raises 'Ecto.NoResultsError' if the Tournament doesn't exist.
+  Returns 'nil' if no Tournament was found.
   """
-  def get_tournament!(id) do
-    Repo.get!(Tournament, id)
+  def get_tournament(id) do
+    Repo.get(Tournament, id)
   end
 
   @doc """
