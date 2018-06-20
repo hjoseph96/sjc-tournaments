@@ -22,6 +22,7 @@ defmodule Sjc.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Sjc.DataCase
+      import Sjc.Factory
     end
   end
 

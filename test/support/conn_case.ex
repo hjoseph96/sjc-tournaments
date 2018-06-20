@@ -20,6 +20,7 @@ defmodule SjcWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       import SjcWeb.Router.Helpers
+      import Sjc.Factory
 
       # The default endpoint for testing
       @endpoint SjcWeb.Endpoint
