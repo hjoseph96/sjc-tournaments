@@ -5,12 +5,9 @@ defmodule Sjc.Factory do
 
   use ExMachina.Ecto, repo: Sjc.Repo
 
-  alias Sjc.Models.Tournament
+  alias Sjc.Models.Player
 
-  def tournament_factory do
-    %Tournament{
-      point_multiplier: 12.0,
-      battle_items_allowed: 7
-    }
+  def player_factory do
+    %Player{}
   end
 end

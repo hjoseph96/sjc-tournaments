@@ -3,57 +3,57 @@ defmodule Sjc.Models do
   Helper functions to interact with the database.
   """
 
-  alias __MODULE__.{Tournament}
+  alias __MODULE__.{Player}
   alias Sjc.Repo
 
-  @doc "Returns all tournaments"
-  def all_tournaments do
-    Repo.all(Tournament)
+  @doc "Returns all players"
+  def all_players do
+    Repo.all(Player)
   end
 
   @doc """
-  Gets a tournament by id.
+  Gets a player by id.
 
-  Returns 'nil' if no Tournament was found.
+  Returns 'nil' if no Player was found.
   """
-  def get_tournament(id) do
-    Repo.get(Tournament, id)
+  def get_player(id) do
+    Repo.get(Player, id)
   end
 
   @doc """
-  Creates a new tournament.
-  Returns {:ok, %Tournament{}} | {:error, %Ecto.Changeset{}}
+  Creates a new player.
+  Returns {:ok, %Player{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_tournament(%{} = args) do
-    %Tournament{}
-    |> Tournament.changeset(args)
+  def create_player(%{} = args) do
+    %Player{}
+    |> Player.changeset(args)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a tournament.
+  Updates a player.
 
-  Returns {:ok, %Tournament{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Player{}} | {:error, %Ecto.Changeset{}}
   """
-  def update_tournament(%Tournament{} = tournament, attrs) do
-    tournament
-    |> Tournament.changeset(attrs)
+  def update_player(%Player{} = player, attrs) do
+    player
+    |> Player.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a tournament.
+  Deletes a player.
 
-  Returns {:ok, %Tournament{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Player{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_tournament(%Tournament{} = tournament) do
-    Repo.delete(tournament)
+  def delete_player(%Player{} = player) do
+    Repo.delete(player)
   end
 
   @doc """
-  Returns an %Ecto.Changeset{} for tracking tournament changes.
+  Returns an %Ecto.Changeset{} for tracking player changes.
   """
-  def change_tournament(%Tournament{} = tournament) do
-    Tournament.changeset(tournament, %{})
+  def change_player(%Player{} = player) do
+    Player.changeset(player, %{})
   end
 end

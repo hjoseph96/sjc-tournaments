@@ -5,16 +5,15 @@ defmodule SjcWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", SjcWeb do
-    pipe_through :api
-  end
-
-  scope "/" do
+  scope "/api" do
     pipe_through :api
 
-    forward "/graph", Absinthe.Plug.GraphiQL,
-      schema: SjcWeb.Schema,
-      interface: :simple,
-      context: %{pubsub: SjcWeb.Endpoint}
+ #   forward "/", Absinthe.Plug,
+#      schema: SjcWeb.Schema
   end
+
+#  forward "/graph", Absinthe.Plug.GraphiQL,
+#   schema: SjcWeb.Schema,
+#    interface: :simple,
+#    context: %{pubsub: SjcWeb.Endpoint}
 end

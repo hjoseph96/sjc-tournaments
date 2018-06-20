@@ -1,39 +1,39 @@
-defmodule Sjc.ModelsTest do
-  @moduledoc false
+# defmodule Sjc.ModelsTest do
+#   @moduledoc false
 
-  use Sjc.DataCase
+#   use Sjc.DataCase
 
-  alias Sjc.Models
-  alias Sjc.Models.Tournament
+#   alias Sjc.Models
+#   alias Sjc.Models.Player
 
-  setup do
-    tournament = insert(:tournament)
-    tournament_params = params_for(:tournament)
+#   setup do
+#     player = insert(:player)
+#     tournament_params = params_for(:player)
 
-    {:ok, tournament_params: tournament_params, tournament: tournament}
-  end
+#     {:ok, tournament_params: tournament_params, player: player}
+#   end
 
-  describe "models" do
-    test "returns all tournaments", %{tournament: tournaments} do
-      tournaments_available = Models.all_tournaments()
+#   describe "models" do
+#     test "returns all players", %{player: players} do
+#       tournaments_available = Models.all_players()
 
-      assert tournaments_available == [tournaments]
-    end
+#       assert tournaments_available == [players]
+#     end
 
-    test "creates a tournament", %{tournament_params: params} do
-      assert {:ok, %Tournament{}} = Models.create_tournament(params)
-    end
+#     test "creates a player", %{tournament_params: params} do
+#       assert {:ok, %Player{}} = Models.create_player(params)
+#     end
 
-    test "updates a tournament", %{tournament: tournament} do
-      assert {:ok, %Tournament{}} = Models.update_tournament(tournament, %{point_multiplier: 3.0})
-    end
+#     test "updates a player", %{player: player} do
+#       assert {:ok, %Player{}} = Models.update_player(player, %{point_multiplier: 3.0})
+#     end
 
-    test "deletes a tournament", %{tournament: tournament} do
-      assert {:ok, %Tournament{}} = Models.delete_tournament(tournament)
-    end
+#     test "deletes a player", %{player: player} do
+#       assert {:ok, %Player{}} = Models.delete_player(player)
+#     end
 
-    test "returns a tournament changeset", %{tournament: tournament} do
-      assert %Ecto.Changeset{} = Models.change_tournament(tournament)
-    end
-  end
-end
+#     test "returns a player changeset", %{player: player} do
+#       assert %Ecto.Changeset{} = Models.change_player(player)
+#     end
+#   end
+# end

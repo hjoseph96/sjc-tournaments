@@ -1,21 +1,21 @@
-defmodule Sjc.Models.Tournament do
+defmodule Sjc.Models.Player do
   @moduledoc """
-  Main schema for the Tournament table
+  Main schema for the Player table
   """
 
   use Ecto.Schema
 
   import Ecto.Changeset
 
-  schema "tournaments" do
+  schema "players" do
     field(:point_multiplier, :float)
     field(:battle_items_allowed, :integer)
 
     timestamps()
   end
 
-  def changeset(%__MODULE__{} = tournament, %{} = args) do
-    tournament
+  def changeset(%__MODULE__{} = player, %{} = args) do
+    player
     |> cast(args, ~w(point_multiplier battle_items_allowed)a)
     |> validate_required(~w(point_multiplier battle_items_allowed)a)
   end

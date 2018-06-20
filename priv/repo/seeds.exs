@@ -10,8 +10,5 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias Sjc.Models.Tournament
+alias Sjc.Models.Player
 alias Sjc.Repo
-
-%Tournament{point_multiplier: 12.0, battle_items_allowed: 2}
-|> Repo.insert!()
