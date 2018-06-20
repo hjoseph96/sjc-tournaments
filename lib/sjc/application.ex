@@ -12,8 +12,7 @@ defmodule Sjc.Application do
       supervisor(Sjc.Repo, []),
       # Start the endpoint when the application starts
       supervisor(SjcWeb.Endpoint, []),
-      # Start your own worker by calling: Sjc.Worker.start_link(arg1, arg2, arg3)
-      # worker(Sjc.Worker, [arg1, arg2, arg3]),
+      supervisor(Registry, [:unique, :game_registry])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
