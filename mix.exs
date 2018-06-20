@@ -42,7 +42,7 @@ defmodule Sjc.Mixfile do
       {:absinthe, "~> 1.4.0"},
       {:absinthe_plug, "~> 1.4"},
       {:absinthe_phoenix, "~> 1.4"},
-      {:ex_machina, "~> 2.2", only: [:test]}
+      {:ex_machina, "~> 2.2", only: :test}
     ]
   end
 
