@@ -56,6 +56,9 @@ defmodule Sjc.Game do
     {:stop, :normal, state}
   end
 
+  # Timeout is just the time a GenServer (Lobby process) can stay alive without
+  # receiving any messages, defaults to 1 hour.
+  # 1 hour without receiving any messages = die.
   defp timeout do
     Application.fetch_env!(:sjc, :game_timeout)
   end

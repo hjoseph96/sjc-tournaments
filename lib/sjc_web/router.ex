@@ -12,8 +12,8 @@ defmodule SjcWeb.Router do
 #      schema: SjcWeb.Schema
   end
 
-#  forward "/graph", Absinthe.Plug.GraphiQL,
-#   schema: SjcWeb.Schema,
-#    interface: :simple,
-#    context: %{pubsub: SjcWeb.Endpoint}
+ forward "/graph", Absinthe.Plug.GraphiQL,
+  schema: SjcWeb.Schema,
+   interface: :simple,
+   context: %{pubsub: SjcWeb.Endpoint}
 end
