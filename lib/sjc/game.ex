@@ -38,15 +38,25 @@ defmodule Sjc.Game do
   # Server
 
   def init(state) do
-    {:ok, state}
+    {:ok, state, timeout()}
   end
 
+  def terminate(:normal, _state), do: :ok
+
   def handle_cast(:next_round, %{round: %{number: round_num}} = state) do
-    {:noreply, put_in(state.round.number, round_num + 1)}
+    {:noreply, put_in(state.round.number, round_num + 1), timeout()}
   end
 
   # Returns the whole process state
   def handle_call(:state, _from, state) do
-    {:reply, state, state}
+    {:reply, state, state, timeout()}
+  end
+
+  def handle_info(:timeout, state) do
+    {:stop, :normal, state}
+  end
+
+  defp timeout do
+    Application.fetch_env!(:sjc, :game_timeout)
   end
 end
