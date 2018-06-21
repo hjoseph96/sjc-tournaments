@@ -13,14 +13,28 @@ defmodule Sjc.Supervisors.GameSupervisor do
   end
 
   def start_child(name) do
-    Supervisor.start_child(__MODULE__, [name])
+    {:ok, pid} = Supervisor.start_child(__MODULE__, [name])
+    Registry.register(:game_supervisor_registry, name, pid)
+
+    {:ok, pid}
+  end
+
+  def stop_child(name) do
+    pid = get_pid(name)
+    Supervisor.terminate_child(__MODULE__, pid)
   end
 
   def init(arg) do
     children = [
-      worker(Sjc.Game, arg)
+      worker(Sjc.Game, arg, restart: :transient)
     ]
 
     supervise(children, strategy: :simple_one_for_one)
+  end
+
+  # Get the pid of the process from the Registry so we can terminate it.
+  defp get_pid(name) do
+    [{_, pid}] = Registry.lookup(:game_supervisor_registry, name)
+    pid
   end
 end
