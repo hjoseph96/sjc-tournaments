@@ -13,8 +13,11 @@ defmodule Sjc.Supervisors.GameSupervisor do
   end
 
   def start_child(name) do
-    {:ok, pid} = Supervisor.start_child(__MODULE__, [name])
-    Registry.register(:game_supervisor_registry, name, pid)
+    pid =
+      case Supervisor.start_child(__MODULE__, [name]) do
+        {:ok, pid} -> pid
+        {:error, {_reason, pid}} -> pid
+      end
 
     {:ok, pid}
   end
@@ -34,7 +37,7 @@ defmodule Sjc.Supervisors.GameSupervisor do
 
   # Get the pid of the process from the Registry so we can terminate it.
   defp get_pid(name) do
-    [{_, pid}] = Registry.lookup(:game_supervisor_registry, name)
+    [{pid, _nil}] = Registry.lookup(:game_registry, name)
     pid
   end
 end
