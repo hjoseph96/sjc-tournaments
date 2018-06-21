@@ -12,7 +12,8 @@ defmodule Sjc.Application do
       supervisor(Sjc.Repo, []),
       # Start the endpoint when the application starts
       supervisor(SjcWeb.Endpoint, []),
-      supervisor(Registry, [:unique, :game_registry])
+      supervisor(Registry, [:unique, :game_registry]),
+      supervisor(Sjc.Supervisors.GameSupervisor, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
