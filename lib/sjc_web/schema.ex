@@ -11,11 +11,27 @@ defmodule SjcWeb.Schema do
     field :number, :integer
   end
 
+  object :player do
+    field :health_points, :float
+    field :shield_points, :float
+    # field :squad_armor_points, :float
+    field :accuracy, :float
+    field :luck, :float
+  end
+
   object :game do
     field :name, :string
     field :round, :round_obj
-    # field :players, :array
+    field :players, list_of(:player)
     # field :actions, :array
+  end
+
+  input_object :player_input_obj do
+    field :health_points, :float
+    field :shield_points, :float
+    # field :squad_armor_points, :float
+    field :accuracy, :float
+    field :luck, :float
   end
 
   query do
@@ -35,6 +51,13 @@ defmodule SjcWeb.Schema do
       arg :name, non_null(:string)
 
       resolve &GameResolver.next_round/3
+    end
+
+    field :add_player, :game do
+      arg :name, non_null(:string)
+      arg :attributes, non_null(:player_input_obj)
+
+      resolve &GameResolver.add_player/3
     end
   end
 
