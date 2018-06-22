@@ -64,8 +64,8 @@ defmodule Sjc.Game do
     player = struct(Players, attrs)
 
     case player in state.players do
-      true -> {:reply, {:error, "already added"}, state, timeout()}
-      false -> {:reply, {:ok, "added"}, update_in(state, [:players], &List.insert_at(&1, -1, player)), timeout()}
+      true -> {:reply, {:error, :already_added}, state, timeout()}
+      false -> {:reply, {:ok, :added}, update_in(state, [:players], &List.insert_at(&1, -1, player)), timeout()}
     end
   end
 
