@@ -37,11 +37,13 @@ defmodule Sjc.GameTest do
         shield_points: 100.0
       }
 
-      assert {:ok, "added"} = Game.add_player("game_1", attributes)
+      assert {:ok, :added} = Game.add_player("game_1", attributes)
       assert length(Game.state("game_1").players) == 1
     end
 
     test "returns {:error, already added} when player is a duplicate" do
+      GameSupervisor.start_child("game_5")
+
       attributes = %{
         accuracy: 5.2,
         health_points: 100.0,
@@ -49,8 +51,8 @@ defmodule Sjc.GameTest do
         shield_points: 100.0
       }
 
-      assert {:ok, "added"} = Game.add_player("game_1", attributes)
-      assert {:error, "already added"} = Game.add_player("game_1", attributes)
+      assert {:ok, :added} = Game.add_player("game_5", attributes)
+      assert {:error, :already_added} = Game.add_player("game_5", attributes)
     end
   end
 end
