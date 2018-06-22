@@ -1,7 +1,7 @@
 defmodule Sjc.GameTest do
   @moduledoc false
 
-  use ExUnit.Case, async: true
+  use Sjc.DataCase
 
   alias Sjc.Supervisors.GameSupervisor
   alias Sjc.Game
@@ -30,12 +30,7 @@ defmodule Sjc.GameTest do
     end
 
     test "creates a player struct correctly" do
-      attributes = %{
-        accuracy: 5.2,
-        health_points: 100.0,
-        luck: 4.8,
-        shield_points: 100.0
-      }
+      attributes = build(:player)
 
       assert {:ok, :added} = Game.add_player("game_1", attributes)
       assert length(Game.state("game_1").players) == 1
@@ -44,12 +39,7 @@ defmodule Sjc.GameTest do
     test "returns {:error, already added} when player is a duplicate" do
       GameSupervisor.start_child("game_5")
 
-      attributes = %{
-        accuracy: 5.2,
-        health_points: 100.0,
-        luck: 4.8,
-        shield_points: 100.0
-      }
+      attributes = build(:player)
 
       assert {:ok, :added} = Game.add_player("game_5", attributes)
       assert {:error, :already_added} = Game.add_player("game_5", attributes)
