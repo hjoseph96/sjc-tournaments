@@ -5,6 +5,8 @@ defmodule Sjc.Game do
 
   use GenServer
 
+  require Logger
+
   alias Sjc.Game.Player
 
   # API
@@ -14,11 +16,14 @@ defmodule Sjc.Game do
   def start_link(name) do
     state = %{
       round: %{
-        number: 1,
-        special_rules: []
+        number: 1
       },
       players: [],
-      actions: []
+      actions: [],
+      special_rules: %{
+        care_package: 2
+      },
+      name: name
     }
 
     GenServer.start_link(__MODULE__, state, name: via(name))
@@ -50,8 +55,17 @@ defmodule Sjc.Game do
   def terminate(:normal, _state), do: :ok
   def terminate(reason, state), do: {reason, state}
 
-  def handle_cast(:next_round, %{round: %{number: round_num}} = state) do
-    {:noreply, put_in(state.round.number, round_num + 1), timeout()}
+  def handle_cast(:next_round, %{round: %{number: round_num}, name: name} = state) do
+    # TODO: Add small health regen for everyone still alive
+
+    new_round = round_num + 1
+    # Each N amount of rounds (Specified in state), drop a 'care package'.
+    case rem(new_round, state.special_rules.care_package) do
+      0 -> Process.send(get_pid(name), :care_package, [:nosuspend])
+      _ -> :ok
+    end
+
+    {:noreply, put_in(state.round.number, new_round), timeout()}
   end
 
   # Returns the whole process state
@@ -73,10 +87,22 @@ defmodule Sjc.Game do
     {:stop, :normal, state}
   end
 
+  def handle_info(:care_package, state) do
+    # TODO: Implementation
+    Logger.debug("[RECEIVED] CARE PACKAGE FROM #{state.name}")
+
+    {:noreply, state}
+  end
+
   # Timeout is just the time a GenServer (Lobby process) can stay alive without
   # receiving any messages, defaults to 1 hour.
   # 1 hour without receiving any messages = die.
   defp timeout do
     Application.fetch_env!(:sjc, :game_timeout)
+  end
+
+  def get_pid(name) do
+    [{pid, _}] = Registry.lookup(:game_registry, name)
+    pid
   end
 end
