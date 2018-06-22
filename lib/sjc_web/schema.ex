@@ -27,11 +27,7 @@ defmodule SjcWeb.Schema do
   end
 
   input_object :player_input_obj do
-    field :health_points, :float
-    field :shield_points, :float
-    # field :squad_armor_points, :float
-    field :accuracy, :float
-    field :luck, :float
+    import_fields :player
   end
 
   query do
