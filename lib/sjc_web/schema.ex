@@ -12,6 +12,7 @@ defmodule SjcWeb.Schema do
   end
 
   object :player do
+    field :id, :id
     field :health_points, :float
     field :shield_points, :float
     # field :squad_armor_points, :float

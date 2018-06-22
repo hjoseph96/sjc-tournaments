@@ -5,7 +5,7 @@ defmodule Sjc.Game do
 
   use GenServer
 
-  alias Sjc.Game.Players
+  alias Sjc.Game.Player
 
   # API
 
@@ -61,9 +61,9 @@ defmodule Sjc.Game do
 
   # Adds player if it doesn't exist yet.
   def handle_call({:add_player, attrs}, _from, state) do
-    player = struct(Players, attrs)
+    player = struct(Player, attrs)
 
-    case player in state.players do
+    case Enum.any?(state.players, & &1.id == attrs.id) do
       true -> {:reply, {:error, :already_added}, state, timeout()}
       false -> {:reply, {:ok, :added}, update_in(state, [:players], &List.insert_at(&1, -1, player)), timeout()}
     end
