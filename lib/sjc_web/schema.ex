@@ -20,10 +20,15 @@ defmodule SjcWeb.Schema do
     field :luck, :float
   end
 
+  object :special_rules_obj do
+    field :care_package, :integer
+  end
+
   object :game do
     field :name, :string
     field :round, :round_obj
     field :players, list_of(:player)
+    field :special_rules, :special_rules_obj
     # field :actions, :array
   end
 
