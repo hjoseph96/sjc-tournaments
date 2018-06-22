@@ -3,6 +3,8 @@ defmodule Sjc.GameTest do
 
   use Sjc.DataCase
 
+  import ExUnit.CaptureLog
+
   alias Sjc.Supervisors.GameSupervisor
   alias Sjc.Game
 
@@ -43,6 +45,15 @@ defmodule Sjc.GameTest do
 
       assert {:ok, :added} = Game.add_player("game_5", attributes)
       assert {:error, :already_added} = Game.add_player("game_5", attributes)
+    end
+
+    test "sends :care_package message to process each N amount of rounds" do
+      # Round numbers are specified in the process state
+      {:ok, _} = GameSupervisor.start_child("game_6")
+
+      fun = fn -> Enum.map(1..2, fn _ -> Game.next_round("game_6") end) end
+
+      assert capture_log(fun) =~ "[RECEIVED] CARE PACKAGE"
     end
   end
 end
