@@ -24,7 +24,7 @@ defmodule Sjc.GameTest do
       assert Process.alive?(pid)
 
       # Don't send message in more time than the timeout specified
-      :timer.sleep(1_500)
+      :timer.sleep(650)
 
       refute Process.alive?(pid)
     end
