@@ -5,8 +5,6 @@ defmodule Sjc.Factory do
 
   use ExMachina
 
-  alias Sjc.Game.Player
-
   def player_factory do
     %{
       id: sequence(:id, & &1 + 1),
