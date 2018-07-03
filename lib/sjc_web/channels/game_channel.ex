@@ -14,11 +14,4 @@ defmodule SjcWeb.GameChannel do
 
     {:ok, assign(socket, :game_pid, pid)}
   end
-
-  def handle_in("stop_game", %{"game" => game_identifier}, socket) do
-    # This function returns the pid of the stopped process.
-    pid = GameSupervisor.stop_child(game_identifier)
-
-    {:reply, {:ok, %{"stopped" => pid}}, socket}
-  end
 end
