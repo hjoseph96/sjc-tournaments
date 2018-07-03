@@ -1,7 +1,7 @@
 defmodule SjcWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :sjc
 
-  socket "/socket", SjcWeb.UserSocket
+  socket "/game", SjcWeb.GameSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
