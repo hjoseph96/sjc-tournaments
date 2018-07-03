@@ -10,7 +10,10 @@ defmodule Sjc.GameTest do
 
   setup do
     Game.start_link("game_1")
-    :ok
+
+    player_attributes = build(:player)
+
+    {:ok, player_attrs: player_attributes}
   end
 
   describe "game" do
@@ -31,17 +34,13 @@ defmodule Sjc.GameTest do
       refute Process.alive?(pid)
     end
 
-    test "creates a player struct correctly" do
-      attributes = build(:player)
-
+    test "creates a player struct correctly", %{player_attrs: attributes} do
       assert {:ok, :added} = Game.add_player("game_1", attributes)
       assert length(Game.state("game_1").players) == 1
     end
 
-    test "returns {:error, already added} when player is a duplicate" do
+    test "returns {:error, already added} when player is a duplicate", %{player_attrs: attributes} do
       GameSupervisor.start_child("game_5")
-
-      attributes = build(:player)
 
       assert {:ok, :added} = Game.add_player("game_5", attributes)
       assert {:error, :already_added} = Game.add_player("game_5", attributes)
@@ -54,6 +53,20 @@ defmodule Sjc.GameTest do
       fun = fn -> Enum.map(1..2, fn _ -> Game.next_round("game_6") end) end
 
       assert capture_log(fun) =~ "[RECEIVED] CARE PACKAGE"
+    end
+
+    test "removes player from game by identifier", %{player_attrs: attributes} do
+      {:ok, _} = GameSupervisor.start_child("game_7")
+      {:ok, :added} = Game.add_player("game_7", attributes)
+
+      players_fn = fn -> length(Game.state("game_7").players) end
+
+      # Player length at this point
+      assert players_fn.() == 1
+
+      Game.remove_player("game_7", attributes.id)
+
+      assert players_fn.() == 0
     end
   end
 end

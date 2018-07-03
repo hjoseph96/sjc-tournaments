@@ -33,6 +33,10 @@ defmodule Sjc.Game do
     GenServer.cast(via(name), :next_round)
   end
 
+  def remove_player(name, identifier) do
+    GenServer.cast(via(name), {:remove, identifier})
+  end
+
   def state(name) do
     GenServer.call(via(name), :state)
   end
@@ -66,6 +70,12 @@ defmodule Sjc.Game do
     end
 
     {:noreply, put_in(state.round.number, new_round), timeout()}
+  end
+
+  def handle_cast({:remove, identifier}, state) do
+    players = Enum.reject(state.players, & &1.id == identifier)
+
+    {:noreply, put_in(state.players, players)}
   end
 
   # Returns the whole process state
