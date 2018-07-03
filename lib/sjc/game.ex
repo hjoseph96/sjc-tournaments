@@ -75,7 +75,7 @@ defmodule Sjc.Game do
   def handle_cast({:remove, identifier}, state) do
     players = Enum.reject(state.players, & &1.id == identifier)
 
-    {:noreply, put_in(state.players, players)}
+    {:noreply, put_in(state.players, players), timeout()}
   end
 
   # Returns the whole process state
@@ -101,7 +101,7 @@ defmodule Sjc.Game do
     # TODO: Implementation
     Logger.debug("[RECEIVED] CARE PACKAGE FROM #{state.name}")
 
-    {:noreply, state}
+    {:noreply, state, timeout()}
   end
 
   # Timeout is just the time a GenServer (Lobby process) can stay alive without
