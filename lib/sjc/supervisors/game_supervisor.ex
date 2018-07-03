@@ -25,6 +25,7 @@ defmodule Sjc.Supervisors.GameSupervisor do
   def stop_child(name) do
     pid = get_pid(name)
     Supervisor.terminate_child(__MODULE__, pid)
+    pid
   end
 
   def init(arg) do
