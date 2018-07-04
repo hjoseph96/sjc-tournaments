@@ -10,7 +10,10 @@ defmodule Sjc.Mixfile do
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      name: "SJC",
+      source_url: "https://github.com/Copywright/sjc-tournaments",
+      docs: docs()
     ]
   end
 
@@ -42,7 +45,8 @@ defmodule Sjc.Mixfile do
       {:absinthe, "~> 1.4.0"},
       {:absinthe_plug, "~> 1.4"},
       {:absinthe_phoenix, "~> 1.4"},
-      {:ex_machina, "~> 2.2", only: :test}
+      {:ex_machina, "~> 2.2", only: :test},
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
     ]
   end
 
@@ -57,6 +61,15 @@ defmodule Sjc.Mixfile do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
+  end
+
+  defp docs do
+    [
+      main: "endpoints",
+      extras: [
+        "docu/endpoints.md"
+      ]
     ]
   end
 end
