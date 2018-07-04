@@ -33,9 +33,15 @@ defmodule SjcWeb.GameResolver do
   end
 
   def add_player(_root, args, _res) do
-     case Game.add_player(args.name, args.attributes) do
-       {:ok, :added} -> {:ok, Game.state(args.name)}
-       {:error, :already_added} -> {:error, "already added"}
-     end
+    case Game.add_player(args.name, args.attributes) do
+      {:ok, :added} -> {:ok, Game.state(args.name)}
+      {:error, :already_added} -> {:error, "already added"}
+    end
+  end
+
+  def remove_player(_root, args, _res) do
+    Game.remove_player(args.name, args.id)
+
+    {:ok, Game.state(args.name)}
   end
 end
