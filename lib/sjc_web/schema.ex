@@ -42,6 +42,14 @@ defmodule SjcWeb.Schema do
 
       resolve &GameResolver.get_game/3
     end
+  end
+
+  mutation do
+    field :create_game, :game do
+      arg :name, non_null(:string)
+
+      resolve &GameResolver.create_game/3
+    end
 
     field :stop_game, :game do
       arg :name, non_null(:string)
@@ -61,13 +69,12 @@ defmodule SjcWeb.Schema do
 
       resolve &GameResolver.add_player/3
     end
-  end
 
-  mutation do
-    field :create_game, :game do
+    field :remove_player, :game do
       arg :name, non_null(:string)
+      arg :id, non_null(:id)
 
-      resolve &GameResolver.create_game/3
+      resolve &GameResolver.remove_player/3
     end
   end
 end
