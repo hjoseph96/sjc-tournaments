@@ -9,8 +9,6 @@ defmodule Sjc.GameTest do
   alias Sjc.Game
 
   setup do
-    Game.start_link("game_1")
-
     player_attributes = build(:player)
 
     {:ok, player_attrs: player_attributes}
@@ -18,6 +16,11 @@ defmodule Sjc.GameTest do
 
   describe "game" do
     test "adds another round to the game" do
+      GameSupervisor.start_child("game_1")
+
+      # True by default, changes it to false so it doesn't call next round automatically.
+      Game.shift_automatically("game_1")
+
       Game.next_round("game_1")
 
       assert Game.state("game_1").round.number == 2
@@ -26,15 +29,20 @@ defmodule Sjc.GameTest do
     test "process dies after specified time" do
       # Timeout in test is just 1 second, 1 hour normally.
       {:ok, pid} = GameSupervisor.start_child("game_2")
+
+      Game.shift_automatically("game_2")
+
       assert Process.alive?(pid)
 
       # Don't send message in more time than the timeout specified
-      :timer.sleep(650)
+      :timer.sleep(2000)
 
       refute Process.alive?(pid)
     end
 
     test "creates a player struct correctly", %{player_attrs: attributes} do
+      GameSupervisor.start_child("game_1")
+
       assert {:ok, :added} = Game.add_player("game_1", attributes)
       assert length(Game.state("game_1").players) == 1
     end
@@ -67,6 +75,12 @@ defmodule Sjc.GameTest do
       Game.remove_player("game_7", attributes.id)
 
       assert players_fn.() == 0
+    end
+
+    test "automatically shifts round when a specified amount of time has passed" do
+      {:ok, _} = GameSupervisor.start_child("game_8")
+
+      assert Game.state("game_8").round.number >= 1
     end
   end
 end
