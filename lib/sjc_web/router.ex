@@ -8,8 +8,8 @@ defmodule SjcWeb.Router do
   scope "/api" do
     pipe_through :api
 
-    # forward "/", Absinthe.Plug,
-    # schema: SjcWeb.Schema
+    forward "/", Absinthe.Plug,
+    schema: SjcWeb.Schema
   end
 
  forward "/graph", Absinthe.Plug.GraphiQL,
