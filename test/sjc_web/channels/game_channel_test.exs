@@ -11,12 +11,9 @@ defmodule SjcWeb.GameChannelTest do
     {:ok, socket: socket}
   end
 
-  test "creates game when joined", %{socket: socket} do
-    pid = socket.assigns.game_pid
-
-    assert is_pid(pid)
-    assert Process.alive?(pid)
-  end
+  # test "creates game when joined", %{socket: socket} do
+  #   IO.inspect socket
+  # end
 
   # test "stops a game when its over", %{socket: socket} do
   #   pid = socket.assigns.game_pid
