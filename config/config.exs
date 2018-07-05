@@ -8,7 +8,8 @@ use Mix.Config
 # General application configuration
 config :sjc,
   ecto_repos: [Sjc.Repo],
-  game_timeout: 3_600_000
+  game_timeout: 3_600_000,
+  round_timeout: 60_000
 
 # Configures the endpoint
 config :sjc, SjcWeb.Endpoint,
