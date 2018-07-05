@@ -122,7 +122,7 @@ defmodule Sjc.Game do
 
   def handle_info(:care_package, state) do
     # TODO: Implementation
-    Logger.debug("[RECEIVED] CARE PACKAGE FROM #{state.name}")
+    Logger.debug("[RECEIVED] CARE PACKAGE FROM " <> state.name)
 
     {:noreply, state, timeout()}
   end
