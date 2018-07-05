@@ -17,3 +17,4 @@ erl_crash.dump
 .iex.exs
 doc
 docu
+.sobelow
