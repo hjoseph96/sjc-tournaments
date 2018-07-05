@@ -5,11 +5,11 @@ defmodule SjcWeb.GameChannel do
 
   use Phoenix.Channel
 
-  alias Sjc.Supervisors.GameSupervisor
+  # alias Sjc.Supervisors.GameSupervisor
 
   # TODO: Don't create a game, instead check for 'create_game' messages
   # and create OR join the player to an existing game.
-  def join("game:" <> game_name, _message, socket) do
+  def join("game:" <> _game_name, _message, socket) do
     {:ok, socket}
   end
 end
