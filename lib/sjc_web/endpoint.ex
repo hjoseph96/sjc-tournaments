@@ -37,6 +37,8 @@ defmodule SjcWeb.Endpoint do
     key: "_sjc_key",
     signing_salt: "e3Hg+P4Y"
 
+  plug CORSPlug, origin: "http://localhost:3000"
+
   plug SjcWeb.Router
 
   @doc """
