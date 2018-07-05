@@ -23,7 +23,8 @@ defmodule Sjc.Game do
       special_rules: %{
         care_package: 2
       },
-      name: name
+      name: name,
+      shift_automatically: true
     }
 
     GenServer.start_link(__MODULE__, state, name: via(name))
@@ -45,6 +46,10 @@ defmodule Sjc.Game do
     GenServer.call(via(name), {:add_player, attributes})
   end
 
+  def shift_automatically(name) do
+    GenServer.call(via(name), :shift_automatically)
+  end
+
   # Register new processes per lobby, identified by 'name'.
   defp via(name) do
     {:via, Registry, {:game_registry, name}}
@@ -53,7 +58,13 @@ defmodule Sjc.Game do
   # Server
 
   def init(state) do
+    schedule_round_timeout(state.name)
+
     {:ok, state, timeout()}
+  end
+
+  defp schedule_round_timeout(name) do
+    Process.send_after(get_pid(name), :round_timeout, round_timeout())
   end
 
   def terminate(:normal, _state), do: :ok
@@ -93,6 +104,18 @@ defmodule Sjc.Game do
     end
   end
 
+  # When testing or when we don't want to automatically shift rounds we call this function.
+  # @dev what happens here is that when you a specific process then you interrupt the timeout()
+  # in each return of a 'handle_*' call, which would make the process to live forever even when
+  # not in use. This also makes it impossible to test if a process dies within the specified time
+  # in timeout/0
+  def handle_call(:shift_automatically, _from, state) do
+    # If true, make it false, true otherwise.
+    will_shift? = !state.shift_automatically
+
+    {:reply, will_shift?, %{state | shift_automatically: will_shift?}}
+  end
+
   def handle_info(:timeout, state) do
     {:stop, :normal, state}
   end
@@ -104,11 +127,23 @@ defmodule Sjc.Game do
     {:noreply, state, timeout()}
   end
 
+  def handle_info(:round_timeout, state) do
+    # We schedule the round timeout here so the 'handle_cast/2' function doesn't call
+    # 'Process.send_after/3' when the function is called manually.
+    if state.shift_automatically, do: schedule_round_timeout(state.name)
+
+    handle_cast(:next_round, state)
+  end
+
   # Timeout is just the time a GenServer (Lobby process) can stay alive without
   # receiving any messages, defaults to 1 hour.
   # 1 hour without receiving any messages = die.
   defp timeout do
     Application.fetch_env!(:sjc, :game_timeout)
+  end
+
+  defp round_timeout do
+    Application.fetch_env!(:sjc, :round_timeout)
   end
 
   def get_pid(name) do
