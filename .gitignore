@@ -18,3 +18,4 @@ erl_crash.dump
 doc
 docu
 .sobelow
+node_modules/
