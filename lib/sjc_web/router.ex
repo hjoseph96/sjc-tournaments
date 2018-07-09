@@ -5,7 +5,7 @@ defmodule SjcWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api" do
+  scope "/api/v1" do
     pipe_through :api
 
     forward "/", Absinthe.Plug,
