@@ -48,6 +48,7 @@ defmodule Sjc.Mixfile do
       {:ex_machina, "~> 2.2", only: :test},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:cors_plug, "~> 1.5"},
+      {:timex, "~> 3.3"},
       {:sobelow, "~> 0.7.0", only: [:dev, :test]},
       {:credo, "~> 0.9.3", only: [:dev, :test]},
     ]
