@@ -24,7 +24,8 @@ defmodule Sjc.Game do
         care_package: 2
       },
       name: name,
-      shift_automatically: true
+      shift_automatically: true,
+      time_of_round: Timex.now()
     }
 
     GenServer.start_link(__MODULE__, state, name: via(name))
@@ -48,6 +49,10 @@ defmodule Sjc.Game do
 
   def shift_automatically(name) do
     GenServer.call(via(name), :shift_automatically)
+  end
+
+  def time_of_round_left(name) do
+    GenServer.call(via(name), :time_of_round_left)
   end
 
   # Register new processes per lobby, identified by 'name'.
@@ -80,7 +85,15 @@ defmodule Sjc.Game do
       _ -> :ok
     end
 
-    {:noreply, put_in(state.round.number, new_round), timeout()}
+    # We send a signal to the channel because a round has just passed
+    SjcWeb.Endpoint.broadcast("game:" <> name, "next_round", %{})
+
+    new_state =
+      state
+      |> put_in([:round, :number], new_round)
+      |> put_in([:time_of_round], Timex.now())
+
+    {:noreply, new_state, timeout()}
   end
 
   def handle_cast({:remove_player, identifier}, state) do
@@ -114,6 +127,12 @@ defmodule Sjc.Game do
     will_shift? = !state.shift_automatically
 
     {:reply, will_shift?, %{state | shift_automatically: will_shift?}}
+  end
+
+  def handle_call(:time_of_round_left, _from, state) do
+    remaining = Timex.diff(Timex.now(), state.time_of_round, :seconds)
+
+    {:reply, remaining, state}
   end
 
   def handle_info(:timeout, state) do
