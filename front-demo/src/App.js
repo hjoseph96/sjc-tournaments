@@ -10,38 +10,21 @@ class App extends Component {
 
     this.state = {
       players: [],
-      roundTime: 0
+      roundTime: null,
+      reqToken: null
     }
 
     this._createGame = this._createGame.bind(this);
     this._addPlayer = this._addPlayer.bind(this);
     this._getRandom = this._getRandom.bind(this);
     this._requestTimeLeft = this._requestTimeLeft.bind(this);
+    this._setupWS = this._setupWS.bind(this);
   }
 
   componentWillMount() {
-    let socket = new Socket("ws://localhost:4000/game", {})
-    socket.connect()
-
-    this.channel = socket.channel("game:first", {})
-
-    this.channel.join()
-    .receive("ok", resp => { console.log("Joined", resp) })
-    .receive("error", resp => { console.log("Error", resp) })
-
-    // Creates graphql connection
+    // Creates a graphql connection
     this.graph = graphql("http://localhost:4000/api/v1");
-
-    this.channel.on("next_round", payload => {
-      console.log("NEXT ROUND RECEIVED")
-    })
-
-    this.channel.on("time_left", payload => {
-      console.log(payload)
-      this.setState({ roundTime: payload.time })
-    })
-
-    console.log("Initialized")
+    this._requestToken()
   }
 
   componentDidMount() {
@@ -59,8 +42,17 @@ class App extends Component {
     }`, {})
     .then(res => { this.setState({ players: res.getGame.players }) })
     .catch(err => { console.log(err) })
+  }
 
-    this.channel.push("time_left", {game: "first"})
+  _requestToken = () => {
+    this.graph(`query ($identifier: [String]!) {
+      getAuth(identifier: $identifier) {
+        token
+      }
+    }`, {
+      identifier: ["12", "localhost", Date.now().toString()]
+    })
+    .then(res => { this.setState({ reqToken: res.getAuth.token }) })
   }
 
   initiatePlayers() {
@@ -132,6 +124,30 @@ class App extends Component {
     .catch(err => { console.log(err) })
   }
 
+  _setupWS() {
+    let socket = new Socket("ws://localhost:4000/game",
+      {params: {jwt_token: this.state.reqToken}})
+
+    socket.connect()
+
+    this.channel = socket.channel("game:first", {})
+
+    this.channel.join()
+    .receive("ok", resp => { console.log("Joined", resp) })
+    .receive("error", resp => { console.log("Error", resp) })
+
+
+    this.channel.on("next_round", payload => {
+      console.log("NEXT ROUND RECEIVED")
+    })
+
+    this.channel.on("time_left", payload => {
+      this.setState({ roundTime: payload.time })
+    })
+
+    this.channel.push("time_left", {game: "first"})
+  }
+
   _requestTimeLeft() {
     this.channel.push("time_left", {game: "first"})
   }
@@ -140,12 +156,16 @@ class App extends Component {
     return (
       <div className="container">
         <h3 onClick={this._createGame}>Create game</h3>
+        <h3 onClick={this._setupWS}>Setup WS</h3>
 
         <div className="row justify-content-center">
-          <ReactCountdownClock
-            seconds={60 - this.state.roundTime}
-            onComplete={this._requestTimeLeft}
-          />
+          {
+            this.state.roundTime !== null &&
+            <ReactCountdownClock
+              seconds={60 - this.state.roundTime}
+              onComplete={this._requestTimeLeft}
+            />
+          }
         </div>
 
         <br />
