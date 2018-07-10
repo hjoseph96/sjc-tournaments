@@ -88,5 +88,27 @@ defmodule Sjc.GameTest do
 
       assert Timex.is_valid?(Game.state("game_9").time_of_round)
     end
+
+    test "doesn't add existing players when adding from a list" do
+      {:ok, _} = GameSupervisor.start_child("game_9")
+      # We only check ids for to remove duplicates so we don't need to pass
+      # the whole list of attributes.
+      players = [
+        %{id: 1},
+        %{id: 2},
+        %{id: 3}
+      ]
+
+      # We'll use an existing game in this case
+      {:ok, :added} = Game.add_player("game_9", %{id: 1})
+
+      # We just add the whole list since so we don't loop through all of them,
+      # otherwise we could have sticked with the previous solution of looping
+      # through each player's attributes.
+      {:ok, :added} = Game.add_player("game_9", players)
+
+      # We should only have 3 players since id 1 was already added
+      assert length(Game.state("game_9").players) == 3
+    end
   end
 end

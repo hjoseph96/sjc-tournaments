@@ -43,6 +43,7 @@ defmodule Sjc.Game do
     GenServer.call(via(name), :state)
   end
 
+  # We can send a list as 'attributes' so we add all the players in a single operation
   def add_player(name, attributes) do
     GenServer.call(via(name), {:add_player, attributes})
   end
@@ -107,13 +108,30 @@ defmodule Sjc.Game do
     {:reply, state, state, timeout()}
   end
 
+  # We still need to check if the player already exists or not but in this case
+  # we're not going to reply back with an error, instead we're just going to remove the duplicate.
+  def handle_call({:add_player, attributes}, _from, state) when is_list(attributes) do
+    # We add both lists and remove duplicates by ID.
+    players = Enum.uniq_by(state.players ++ attributes, & &1.id)
+
+    # We're gonna always reply the same unless the process crashes
+    {:reply, {:ok, :added}, put_in(state.players, players), timeout()}
+  end
+
   # Adds player if it doesn't exist yet.
   def handle_call({:add_player, attrs}, _from, state) do
     player = struct(Player, attrs)
 
     case Enum.any?(state.players, & &1.id == attrs.id) do
-      true -> {:reply, {:error, :already_added}, state, timeout()}
-      false -> {:reply, {:ok, :added}, update_in(state, [:players], &List.insert_at(&1, -1, player)), timeout()}
+      true ->
+        {:reply, {:error, :already_added}, state, timeout()}
+      false ->
+        {
+          :reply,
+          {:ok, :added},
+          update_in(state, [:players], &List.insert_at(&1, -1, player)),
+          timeout()
+        }
     end
   end
 
