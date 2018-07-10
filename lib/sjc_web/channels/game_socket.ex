@@ -11,20 +11,19 @@ defmodule SjcWeb.GameSocket do
   transport :websocket, Phoenix.Transports.WebSocket
   # transport :longpoll, Phoenix.Transports.LongPoll
 
-  # Socket params are passed from the client and can
-  # be used to verify and authenticate a user. After
-  # verification, you can put default assigns into
-  # the socket that will be set for all channels, ie
-  #
-  #     {:ok, assign(socket, :user_id, verified_user_id)}
-  #
-  # To deny connection, return `:error`.
-  #
-  # See `Phoenix.Token` documentation for examples in
-  # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(%{"jwt_token" => token}, socket) do
+    # max_age: 10 would make this token valid only for a connection.
+    case Phoenix.Token.verify(socket, "ws salt", token, max_age: 10) do
+      {:ok, {id, _ip, _timestamp}} ->
+        new_socket = assign(socket, :identifier, id)
+        {:ok, new_socket}
+
+      {:error, _} ->
+        :error
+    end
   end
+
+  def connect(_params, _socket), do: :error
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
   #
