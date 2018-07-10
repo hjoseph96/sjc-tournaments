@@ -82,5 +82,11 @@ defmodule Sjc.GameTest do
 
       assert Game.state("game_8").round.number >= 1
     end
+
+    test "shows the elapsed time" do
+      {:ok, _} = GameSupervisor.start_child("game_9")
+
+      assert Timex.is_valid?(Game.state("game_9").time_of_round)
+    end
   end
 end
