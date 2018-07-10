@@ -12,9 +12,9 @@ defmodule SjcWeb.GameSocket do
   # transport :longpoll, Phoenix.Transports.LongPoll
 
   def connect(%{"jwt_token" => token}, socket) do
-    # max_age: 10 would make this token valid only for a connection.
-    case Phoenix.Token.verify(socket, "ws salt", token, max_age: 10) do
-      {:ok, {id, _ip, _timestamp}} ->
+    # :max_age would make this token valid only for a connection.
+    case Phoenix.Token.verify(socket, "ws salt", token, max_age: 20) do
+      {:ok, [id, _ip, _timestamp]} ->
         new_socket = assign(socket, :identifier, id)
         {:ok, new_socket}
 
