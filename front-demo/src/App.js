@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactCountdownClock from "react-countdown-clock";
 import { Socket } from "phoenix";
 
 const graphql = require("graphql.js");
@@ -8,13 +9,14 @@ class App extends Component {
     super(props);
 
     this.state = {
-      players: []
+      players: [],
+      roundTime: 0
     }
 
     this._createGame = this._createGame.bind(this);
     this._addPlayer = this._addPlayer.bind(this);
-    this._getGame = this._getGame.bind(this);
     this._getRandom = this._getRandom.bind(this);
+    this._requestTimeLeft = this._requestTimeLeft.bind(this);
   }
 
   componentWillMount() {
@@ -28,9 +30,37 @@ class App extends Component {
     .receive("error", resp => { console.log("Error", resp) })
 
     // Creates graphql connection
-    this.graph = graphql("http://localhost:4000/api");
+    this.graph = graphql("http://localhost:4000/api/v1");
+
+    this.channel.on("next_round", payload => {
+      console.log("NEXT ROUND RECEIVED")
+    })
+
+    this.channel.on("time_left", payload => {
+      console.log(payload)
+      this.setState({ roundTime: payload.time })
+    })
 
     console.log("Initialized")
+  }
+
+  componentDidMount() {
+    this.graph(`query {
+      getGame(name: "first") {
+        players {
+          id
+          healthPoints
+          shieldPoints
+          luck
+          accuracy
+        }
+        name
+      }
+    }`, {})
+    .then(res => { this.setState({ players: res.getGame.players }) })
+    .catch(err => { console.log(err) })
+
+    this.channel.push("time_left", {game: "first"})
   }
 
   initiatePlayers() {
@@ -102,28 +132,21 @@ class App extends Component {
     .catch(err => { console.log(err) })
   }
 
-  _getGame() {
-    this.graph(`query {
-      getGame(name: "first") {
-        players {
-          id
-          healthPoints
-          shieldPoints
-          luck
-          accuracy
-        }
-        name
-      }
-    }`, {})
-    .then(res => { this.setState({ players: res.getGame.players }) })
-    .catch(err => { console.log(err) })
+  _requestTimeLeft() {
+    this.channel.push("time_left", {game: "first"})
   }
 
   render() {
     return (
       <div className="container">
         <h3 onClick={this._createGame}>Create game</h3>
-        <h3 onClick={this._getGame}>Get current game</h3>
+
+        <div className="row justify-content-center">
+          <ReactCountdownClock
+            seconds={60 - this.state.roundTime}
+            onComplete={this._requestTimeLeft}
+          />
+        </div>
 
         <br />
 
