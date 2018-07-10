@@ -5,7 +5,7 @@ defmodule SjcWeb.Schema do
 
   use Absinthe.Schema
 
-  alias SjcWeb.GameResolver
+  alias SjcWeb.{GameResolver, AuthResolver}
 
   object :round_obj do
     field :number, :integer
@@ -32,6 +32,10 @@ defmodule SjcWeb.Schema do
     # field :actions, :array
   end
 
+  object :auth do
+    field :token, :string
+  end
+
   input_object :player_input_obj do
     import_fields :player
   end
@@ -41,6 +45,12 @@ defmodule SjcWeb.Schema do
       arg :name, non_null(:string)
 
       resolve &GameResolver.get_game/3
+    end
+
+    field :get_auth, :auth do
+      arg :identifier, non_null(list_of(:string))
+
+      resolve &AuthResolver.get_auth/3
     end
   end
 
