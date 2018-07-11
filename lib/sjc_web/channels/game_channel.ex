@@ -14,15 +14,24 @@ defmodule SjcWeb.GameChannel do
     {:ok, socket}
   end
 
-  def handle_in("next_round", %{}, socket) do
-    broadcast!(socket, "next_round", %{})
+  # Used when the user is already connected to the channel.
+  def handle_in("next_round", %{"number" => round_number}, socket) do
+    broadcast!(socket, "next_round", %{number: round_number})
 
     {:noreply, socket}
   end
 
-  def handle_in("time_left", %{"game" => game_name}, socket) do
+  def handle_in("in_time_left", %{"game" => game_name}, socket) do
     time = Game.time_of_round_left(game_name)
-    push(socket, "time_left", %{time: time})
+    push(socket, "out_time_left", %{time: time})
+
+    {:noreply, socket}
+  end
+
+  # Used when an user is joining the channel.
+  def handle_in("initial_next_round", %{"game" => game_name}, socket) do
+    round = Game.state(game_name).round.number
+    push(socket, "next_round", %{number: round})
 
     {:noreply, socket}
   end
