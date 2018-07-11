@@ -87,7 +87,7 @@ defmodule Sjc.Game do
     end
 
     # We send a signal to the channel because a round has just passed
-    SjcWeb.Endpoint.broadcast("game:" <> name, "next_round", %{})
+    SjcWeb.Endpoint.broadcast("game:" <> name, "next_round", %{number: new_round})
 
     new_state =
       state
