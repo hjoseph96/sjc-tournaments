@@ -110,5 +110,39 @@ defmodule Sjc.GameTest do
       # We should only have 3 players since id 1 was already added
       assert length(Game.state("game_9").players) == 3
     end
+
+    test "should run given actions" do
+      {:ok, _} = GameSupervisor.start_child("game_10")
+      Game.shift_automatically("game_10")
+
+      # This way we can test adding by a list and we have the IDS we need.
+      p = build(:player)
+      pp = build(:player)
+      players = [p, pp]
+
+      # Manually send the signal
+      Game.add_player("game_10", players)
+
+      players = Game.state("game_10").players
+
+      actions = [
+        %{ "from" => p.id, "to" => pp.id, "type" => "damage", "amount" => 4.8 },
+        %{ "from" => pp.id, "to" => pp.id, "type" => "shield", "amount" => 3.0 },
+        %{ "from" => p.id, "to" => p.id, "type" => "shield", "amount" => 5.0 },
+        %{ "from" => pp.id, "to" => p.id, "type" => "damage", "amount" => 4.0}
+      ]
+
+      Game.add_round_actions("game_10", actions)
+
+      updated_players = Game.state("game_10").players
+
+      # Players state should have changed.
+      refute updated_players == players 
+      assert length(Game.state("game_10").players) == 2
+
+      hps = Enum.map(updated_players, & &1.health_points)
+
+      assert 46.0 in hps && 45.2 in hps
+    end
   end
 end

@@ -39,6 +39,10 @@ defmodule Sjc.Game do
     GenServer.cast(via(name), {:remove_player, identifier})
   end
 
+  def add_round_actions(name, actions) do
+    GenServer.cast(via(name), {:add_actions, actions})
+  end
+
   def state(name) do
     GenServer.call(via(name), :state)
   end
@@ -101,6 +105,19 @@ defmodule Sjc.Game do
     players = Enum.reject(state.players, & &1.id == identifier)
 
     {:noreply, put_in(state.players, players), timeout()}
+  end
+
+  def handle_cast({:add_actions, actions}, state) when is_list(actions) do
+    # 'actions' should come in a map with some keys, :from, :to, :amount, :type
+    # where :type should be one of "shield", "damage".
+    players = run_actions(actions, state)
+  
+    new_state =
+      state 
+      |> put_in([:players], players)
+      |> put_in([:actions], [])
+
+    {:noreply, new_state}
   end
 
   # Returns the whole process state
@@ -182,6 +199,27 @@ defmodule Sjc.Game do
   defp round_timeout do
     Application.fetch_env!(:sjc, :round_timeout)
   end
+
+  defp run_actions(actions, %{players: players} = state) do
+    actions
+    |> Enum.reduce(players, fn action, acc ->
+      player_index = Enum.find_index(players, & &1.id == action["to"])
+
+      do_type(acc, action["type"], player_index, action["amount"])
+    end)
+    |> Enum.map(&struct(Player, &1))
+  end
+  
+  # TODO: Players have shield points too, we're only removing health_points here for now.
+  defp do_type(players, "damage", index, amount) do
+    update_in(players, [Access.at(index), :health_points], & &1 - amount)
+  end
+
+  defp do_type(players, "shield", index, amount) do
+    update_in(players, [Access.at(index), :shield_points], & &1 + amount)
+  end
+
+  defp do_type(players, _type, _index, _amount), do: players
 
   def get_pid(name) do
     [{pid, _}] = Registry.lookup(:game_registry, name)
