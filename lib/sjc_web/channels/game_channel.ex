@@ -35,4 +35,12 @@ defmodule SjcWeb.GameChannel do
 
     {:noreply, socket}
   end
+
+  # Each round should have a list or map of actions, Those are added to the
+  # Game state and executed before the next rounds begins.
+  def handle_in("in_round_actions", %{"actions" => actions, "game" => game_name}, socket) do
+    Game.add_round_actions(game_name, actions)
+
+    {:noreply, socket}
+  end
 end
