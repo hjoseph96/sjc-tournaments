@@ -11,6 +11,7 @@ class App extends Component {
 
     this.state = {
       players: [],
+      actions: [],
       roundTime: null,
       reqToken: null,
       round: 1
@@ -21,6 +22,7 @@ class App extends Component {
     this._getRandom = this._getRandom.bind(this);
     this._requestTimeLeft = this._requestTimeLeft.bind(this);
     this._setupWS = this._setupWS.bind(this);
+    this._putActions = this._putActions.bind(this);
   }
 
   componentWillMount() {
@@ -155,6 +157,14 @@ class App extends Component {
     this.channel.push("in_time_left", {game: "first"})
   }
 
+  _putActions(action) {
+    let currActions = this.state.actions;
+    currActions[action.index] = action;
+    
+    console.log(currActions)
+    this.setState({ actions: currActions });
+  }
+
   render() {
     return (
       <div className="container">
@@ -187,6 +197,7 @@ class App extends Component {
               <th>SP</th>
               <th>Luck</th>
               <th>Accuracy</th>
+              <th>Action</th>
             </tr>
           </thead>
 
@@ -194,7 +205,12 @@ class App extends Component {
             {
               this.state.players.map((player, index) => (
                 <Fragment key={index}>
-                  <Player player={player} />
+                  <Player 
+                    player={player} 
+                    callbackParent={this._putActions} 
+                    players={this.state.players}
+                    index={index}  
+                  />
                 </Fragment>
               ))
             }
