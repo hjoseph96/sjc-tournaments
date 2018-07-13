@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactCountdownClock from "react-countdown-clock";
 import { Socket } from "phoenix";
+import Player from "./components/Player";
 
 const graphql = require("graphql.js");
 
@@ -191,17 +192,11 @@ class App extends Component {
 
           <tbody>
             {
-              this.state.players.map((player, index) => {
-                return(
-                  <tr key={"body_" + index}>
-                    <td>{player.id}</td>
-                    <td>{player.healthPoints} / 100 </td>
-                    <td>{player.shieldPoints}</td>
-                    <td>{player.luck}</td>
-                    <td>{player.accuracy}</td>
-                  </tr>
-                )
-              })
+              this.state.players.map((player, index) => (
+                <Fragment key={index}>
+                  <Player player={player} />
+                </Fragment>
+              ))
             }
           </tbody>
         </table>
