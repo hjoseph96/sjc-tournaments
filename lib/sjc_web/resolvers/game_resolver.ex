@@ -8,9 +8,9 @@ defmodule SjcWeb.GameResolver do
 
   def get_game(_root, %{name: name}, _res) do
     {:ok, Game.state(name)}
-
-  catch :exit, _ ->
-    {:error, "not found"}
+  catch
+    :exit, _ ->
+      {:error, "not found"}
   end
 
   def create_game(_root, %{name: name}, _res) do

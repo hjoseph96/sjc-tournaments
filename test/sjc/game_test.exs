@@ -126,10 +126,10 @@ defmodule Sjc.GameTest do
       players = Game.state("game_10").players
 
       actions = [
-        %{ "from" => p.id, "to" => pp.id, "type" => "damage", "amount" => 4.8 },
-        %{ "from" => pp.id, "to" => pp.id, "type" => "shield", "amount" => 3.0 },
-        %{ "from" => p.id, "to" => p.id, "type" => "shield", "amount" => 5.0 },
-        %{ "from" => pp.id, "to" => p.id, "type" => "damage", "amount" => 4.0}
+        %{"from" => p.id, "to" => pp.id, "type" => "damage", "amount" => 4.8},
+        %{"from" => pp.id, "to" => pp.id, "type" => "shield", "amount" => 3.0},
+        %{"from" => p.id, "to" => p.id, "type" => "shield", "amount" => 5.0},
+        %{"from" => pp.id, "to" => p.id, "type" => "damage", "amount" => 4.0}
       ]
 
       Game.add_round_actions("game_10", actions)
@@ -137,7 +137,7 @@ defmodule Sjc.GameTest do
       updated_players = Game.state("game_10").players
 
       # Players state should have changed.
-      refute updated_players == players 
+      refute updated_players == players
       assert length(Game.state("game_10").players) == 2
 
       hps = Enum.map(updated_players, & &1.health_points)

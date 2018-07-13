@@ -14,7 +14,7 @@ defmodule Sjc.Application do
       supervisor(SjcWeb.Endpoint, []),
       supervisor(Registry, [:unique, :game_registry], id: 1),
       supervisor(Registry, [:unique, :game_supervisor_registry], id: 2),
-      supervisor(Sjc.Supervisors.GameSupervisor, []),
+      supervisor(Sjc.Supervisors.GameSupervisor, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

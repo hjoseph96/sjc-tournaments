@@ -5,10 +5,10 @@ defmodule SjcWeb.GameSocket do
 
   ## Channels
   # channel "room:*", SjcWeb.RoomChannel
-  channel "game:*", SjcWeb.GameChannel
+  channel("game:*", SjcWeb.GameChannel)
 
   ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket
+  transport(:websocket, Phoenix.Transports.WebSocket)
   # transport :longpoll, Phoenix.Transports.LongPoll
 
   def connect(%{"jwt_token" => token}, socket) do

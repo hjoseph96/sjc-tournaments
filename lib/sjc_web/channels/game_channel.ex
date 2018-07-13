@@ -5,7 +5,6 @@ defmodule SjcWeb.GameChannel do
 
   use Phoenix.Channel
 
-
   alias Sjc.Game
 
   # TODO: Don't create a game, instead check for 'create_game' messages

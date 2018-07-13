@@ -16,8 +16,7 @@ config :sjc, SjcWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Xcwjxx4wSQrs+PCHDvLFp81uTCUjYHdQ0lNhtJ+pXDjF3vUTJ1Al8v+qXAguY5QE",
   render_errors: [view: SjcWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Sjc.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Sjc.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -26,4 +25,4 @@ config :logger, :console,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

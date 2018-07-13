@@ -104,7 +104,7 @@ defmodule Sjc.Game do
   end
 
   def handle_cast({:remove_player, identifier}, state) do
-    players = Enum.reject(state.players, & &1.id == identifier)
+    players = Enum.reject(state.players, &(&1.id == identifier))
 
     {:noreply, put_in(state.players, players), timeout()}
   end
@@ -113,9 +113,9 @@ defmodule Sjc.Game do
     # 'actions' should come in a map with some keys, :from, :to, :amount, :type
     # where :type should be one of "shield", "damage".
     players = run_actions(actions, state)
-  
+
     new_state =
-      state 
+      state
       |> put_in([:players], players)
       |> put_in([:actions], [])
 
@@ -141,9 +141,10 @@ defmodule Sjc.Game do
   def handle_call({:add_player, attrs}, _from, state) do
     player = struct(Player, attrs)
 
-    case Enum.any?(state.players, & &1.id == attrs.id) do
+    case Enum.any?(state.players, &(&1.id == attrs.id)) do
       true ->
         {:reply, {:error, :already_added}, state, timeout()}
+
       false ->
         {
           :reply,
@@ -205,20 +206,20 @@ defmodule Sjc.Game do
   defp run_actions(actions, %{players: players}) do
     actions
     |> Enum.reduce(players, fn action, acc ->
-      player_index = Enum.find_index(players, & &1.id == action["to"])
+      player_index = Enum.find_index(players, &(&1.id == action["to"]))
 
       do_type(acc, action["type"], player_index, action["amount"])
     end)
     |> Enum.map(&struct(Player, &1))
   end
-  
+
   # TODO: Players have shield points too, we're only removing health_points here for now.
   defp do_type(players, "damage", index, amount) do
-    update_in(players, [Access.at(index), :health_points], & &1 - amount)
+    update_in(players, [Access.at(index), :health_points], &(&1 - amount))
   end
 
   defp do_type(players, "shield", index, amount) do
-    update_in(players, [Access.at(index), :shield_points], & &1 + amount)
+    update_in(players, [Access.at(index), :shield_points], &(&1 + amount))
   end
 
   defp do_type(players, _type, _index, _amount) do
@@ -226,7 +227,7 @@ defmodule Sjc.Game do
   end
 
   defp remove_dead_players(state) do
-    new_players = Enum.reject(state.players, & &1.health_points <= 0)
+    new_players = Enum.reject(state.players, &(&1.health_points <= 0))
 
     put_in(state, [:players], new_players)
   end
