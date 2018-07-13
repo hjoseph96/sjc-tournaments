@@ -14,6 +14,7 @@ defmodule Sjc.Application do
       supervisor(SjcWeb.Endpoint, []),
       supervisor(Registry, [:unique, :game_registry], id: 1),
       supervisor(Registry, [:unique, :game_supervisor_registry], id: 2),
+      supervisor(Registry, [:unique, :game_backup], id: 3),
       supervisor(Sjc.Supervisors.GameSupervisor, [])
     ]
 
