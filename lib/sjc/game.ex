@@ -8,6 +8,7 @@ defmodule Sjc.Game do
   require Logger
 
   alias Sjc.Game.Player
+  alias Sjc.GameBackup
 
   # API
 
@@ -68,9 +69,12 @@ defmodule Sjc.Game do
   # Server
 
   def init(state) do
-    schedule_round_timeout(state.name)
+    GameBackup.start_link(state.name)
 
-    {:ok, state, timeout()}
+    backup_state = GameBackup.recover_state(state.name)
+    schedule_round_timeout(backup_state.name)
+
+    {:ok, backup_state, timeout()}
   end
 
   defp schedule_round_timeout(name) do
@@ -78,7 +82,7 @@ defmodule Sjc.Game do
   end
 
   def terminate(:normal, _state), do: :ok
-  def terminate(reason, state), do: {reason, state}
+  def terminate(_reason, state), do: GameBackup.save_state(state.name, state)
 
   def handle_cast(:next_round, %{round: %{number: round_num}, name: name} = state) do
     # TODO: Add small health regen for everyone still alive
@@ -119,7 +123,7 @@ defmodule Sjc.Game do
       |> put_in([:players], players)
       |> put_in([:actions], [])
 
-    {:noreply, new_state}
+    {:noreply, new_state, timeout()}
   end
 
   # Returns the whole process state
@@ -164,13 +168,13 @@ defmodule Sjc.Game do
     # If true, make it false, true otherwise.
     will_shift? = !state.shift_automatically
 
-    {:reply, will_shift?, %{state | shift_automatically: will_shift?}}
+    {:reply, will_shift?, %{state | shift_automatically: will_shift?}, timeout()}
   end
 
   def handle_call(:time_of_round_left, _from, state) do
     remaining = Timex.diff(Timex.now(), state.time_of_round, :seconds)
 
-    {:reply, remaining, state}
+    {:reply, remaining, state, timeout()}
   end
 
   def handle_info(:timeout, state) do
