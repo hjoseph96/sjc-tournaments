@@ -144,5 +144,26 @@ defmodule Sjc.GameTest do
 
       assert 46.0 in hps && 45.2 in hps
     end
+
+    test "remove dead players" do
+      {:ok, _} = GameSupervisor.start_child("game_11")
+      Game.shift_automatically("game_11")
+      player = build(:player)
+      player_2 = build(:player)
+
+      Game.add_player("game_11", [player, player_2])
+
+      assert length(Game.state("game_11").players) == 2
+
+      # Player 1 kills player 2
+      action = [%{"from" => player.id, "to" => player_2.id, "type" => "damage", "amount" => 51.0}]
+
+      Game.add_round_actions("game_11", action)
+
+      # Manually trigger the next round
+      Game.next_round("game_11")
+
+      assert length(Game.state("game_11").players) == 1
+    end
   end
 end
