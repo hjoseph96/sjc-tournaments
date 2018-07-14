@@ -26,7 +26,8 @@ defmodule Sjc.Game do
       },
       name: name,
       shift_automatically: true,
-      time_of_round: Timex.now()
+      time_of_round: Timex.now(),
+      backup_pid: nil
     }
 
     GenServer.start_link(__MODULE__, state, name: via(name))
@@ -69,12 +70,20 @@ defmodule Sjc.Game do
   # Server
 
   def init(state) do
-    GameBackup.start_link(state.name)
-
+    pid = get_backup_pid(state)
     backup_state = GameBackup.recover_state(state.name)
-    schedule_round_timeout(backup_state.name)
+    schedule_round_timeout(state.name)
 
-    {:ok, backup_state, timeout()}
+    Process.flag(:trap_exit, true)
+
+    {:ok, %{backup_state | backup_pid: pid}, timeout()}
+  end
+
+  defp get_backup_pid(state) do
+    case GameBackup.start_link(state) do
+      {:ok, pid} -> pid
+      {:error, {_reason, pid}} -> pid
+    end
   end
 
   defp schedule_round_timeout(name) do
@@ -94,15 +103,15 @@ defmodule Sjc.Game do
       _ -> :ok
     end
 
-    # We send a signal to the channel because a round has just passed
-    SjcWeb.Endpoint.broadcast("game:" <> name, "next_round", %{number: new_round})
-
     new_state =
       state
       |> put_in([:round, :number], new_round)
       |> put_in([:time_of_round], Timex.now())
       # Remove players that have less than 0 HP.
       |> remove_dead_players()
+
+    # We send a signal to the channel because a round has just passed
+    SjcWeb.Endpoint.broadcast("game:" <> name, "next_round", %{number: new_round})
 
     {:noreply, new_state, timeout()}
   end
@@ -181,6 +190,10 @@ defmodule Sjc.Game do
     {:stop, :normal, state}
   end
 
+  def handle_info({:EXIT, _pid, reason}, state) do
+    {:stop, reason, state}
+  end
+
   def handle_info(:care_package, state) do
     # TODO: Implementation
     Logger.debug("[RECEIVED] CARE PACKAGE FROM " <> state.name)
@@ -231,7 +244,12 @@ defmodule Sjc.Game do
   end
 
   defp remove_dead_players(state) do
-    new_players = Enum.reject(state.players, &(&1.health_points <= 0))
+    new_players = 
+      state.players
+      |> Enum.reject(&(&1.health_points <= 0))
+      |> Enum.reject(fn player -> nil in Map.values(player) end)
+
+      Enum.reject(state.players, &(&1.health_points <= 0))
 
     put_in(state, [:players], new_players)
   end
