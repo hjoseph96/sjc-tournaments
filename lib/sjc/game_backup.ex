@@ -5,23 +5,8 @@ defmodule Sjc.GameBackup do
 
   use GenServer
 
-  def start_link(name) do
-    # We initialize the process with the same state as main Game process.
-    state = %{
-      round: %{
-        number: 1
-      },
-      players: [],
-      actions: [],
-      special_rules: %{
-        care_package: 2
-      },
-      name: name,
-      shift_automatically: true,
-      time_of_round: Timex.now()
-    }
-
-    GenServer.start_link(__MODULE__, state, name: via(name))
+  def start_link(state) do
+    GenServer.start(__MODULE__, state, name: via(state.name))
   end
 
   def save_state(name, state) do
@@ -41,10 +26,16 @@ defmodule Sjc.GameBackup do
   end
 
   def handle_cast({:save, state}, _state) do
-    {:noreply, state}
+    {:noreply, state, timeout()}
   end
 
   def handle_call(:recover, _from, state) do
-    {:reply, state, state}
+    {:reply, state, state, timeout()}
+  end
+
+  def handle_info(:timeout, state), do: {:stop, :normal, state}
+
+  defp timeout do
+    Application.fetch_env!(:sjc, :game_timeout)
   end
 end
