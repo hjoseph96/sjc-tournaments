@@ -89,18 +89,12 @@ defmodule Sjc.GameTest do
       assert Timex.is_valid?(Game.state("game_9").time_of_round)
     end
 
-    test "doesn't add existing players when adding from a list" do
+    test "doesn't add existing players when adding from a list", %{player_attrs: player1} do
       {:ok, _} = GameSupervisor.start_child("game_9")
-      # We only check ids for to remove duplicates so we don't need to pass
-      # the whole list of attributes.
-      players = [
-        %{id: 1},
-        %{id: 2},
-        %{id: 3}
-      ]
+      players = [player1, build(:player), build(:player)]
 
       # We'll use an existing game in this case
-      {:ok, :added} = Game.add_player("game_9", %{id: 1})
+      {:ok, :added} = Game.add_player("game_9", player1)
 
       # We just add the whole list since so we don't loop through all of them,
       # otherwise we could have sticked with the previous solution of looping
@@ -164,6 +158,22 @@ defmodule Sjc.GameTest do
       Game.next_round("game_11")
 
       assert length(Game.state("game_11").players) == 1
+    end
+
+    @tag :only
+    test "backup gets state of current game if it crashes" do
+      {:ok, pid} = GameSupervisor.start_child("game_12")
+      Game.shift_automatically("game_12")
+      
+      # Adding an invalid player will crash the process when the next round is triggered
+      Game.add_player("game_12", [build(:player)])
+
+      Process.exit(pid, :die)
+
+      :timer.sleep(1000)
+
+      # Process should be restarted but the old pid
+      assert length(Game.state("game_12").players) == 1
     end
   end
 end
